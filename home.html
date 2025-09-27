@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Dashboard System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .role-badge {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .logout-btn {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: #d32f2f;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .card-icon {
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .input-group input, .input-group select, .input-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus, .input-group select:focus, .input-group textarea:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 500;
+            transition: transform 0.3s, box-shadow 0.3s;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #2196F3, #1976D2);
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, #f44336, #d32f2f);
+        }
+
+        .btn-danger:hover {
+            box-shadow: 0 5px 15px rgba(244, 67, 54, 0.4);
+        }
+
+        .results-card {
+            grid-column: 1 / -1;
+            background: rgba(255, 255, 255, 0.98);
+        }
+
+        .result-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .risk-high {
+            border-left-color: #f44336;
+            background: #ffebee;
+        }
+
+        .risk-medium {
+            border-left-color: #ff9800;
+            background: #fff3e0;
+        }
+
+        .risk-low {
+            border-left-color: #4CAF50;
+            background: #e8f5e8;
+        }
+
+        .file-upload {
+            border: 2px dashed #ddd;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.3s, background 0.3s;
+        }
+
+        .file-upload:hover {
+            border-color: #4CAF50;
+            background: #f8fff8;
+        }
+
+        .file-upload.dragover {
+            border-color: #4CAF50;
+            background: #e8f5e8;
+        }
+
+        .patient-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+        }
+
+        .patient-item {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .patient-item:hover {
+            background: #f8f9fa;
+        }
+
+        .patient-item:last-child {
+            border-bottom: none;
+        }
+
+        .login-form {
+            max-width: 400px;
+            margin: 50px auto;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.1);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .prediction-result {
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .image-preview {
+            max-width: 100%;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+
+
+<body>
+    <!-- Login Form -->
+    <div id="loginForm" class="login-form">
+        <div class="logo" style="justify-content: center; margin-bottom: 30px;">
+            <div class="logo-icon">M+</div>
+            <h2>Medical Dashboard</h2>
+        </div>
+        <div class="input-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" placeholder="Enter username" required>
+        </div>
+        <div class="input-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" placeholder="Enter password" required>
+        </div>
+        <div class="input-group">
+            <label for="role">Role</label>
+            <select id="role">
+                <option value="doctor">Doctor</option>
+                <option value="patient">Patient</option>
+            </select>
+        </div>
+        <button class="btn" onclick="login()">Login</button>
+        <p style="text-align:center; margin-top:10px;">
+            Don't have an account? <a href="#" onclick="showSignup()">Sign Up</a>
+        </p>
+    </div>
+
+    <!-- Signup Form -->
+    <div id="signupForm" class="login-form hidden">
+        <div class="logo" style="justify-content: center; margin-bottom: 30px;">
+            <div class="logo-icon">M+</div>
+            <h2>Create Account</h2>
+        </div>
+        <div class="input-group">
+            <label for="newUsername">Username</label>
+            <input type="text" id="newUsername" placeholder="Choose username" required>
+        </div>
+        <div class="input-group">
+            <label for="newPassword">Password</label>
+            <input type="password" id="newPassword" placeholder="Choose password" required>
+        </div>
+        <div class="input-group">
+            <label for="newRole">Role</label>
+            <select id="newRole">
+                <option value="doctor">Doctor</option>
+                <option value="patient">Patient</option>
+            </select>
+        </div>
+        <button class="btn" onclick="signup()">Sign Up</button>
+        <p style="text-align:center; margin-top:10px;">
+            Already have an account? <a href="#" onclick="showLogin()">Login</a>
+        </p>
+    </div>
+
+
+    <!-- Main Dashboard -->
+    <div id="mainDashboard" class="container hidden">
+        <div class="header">
+            <div class="logo">
+                <div class="logo-icon">M+</div>
+                <div>
+                    <h2>Medical Dashboard</h2>
+                    <p style="color: #666; font-size: 0.9em;">Comprehensive Healthcare Management System</p>
+                </div>
+            </div>
+            <div class="user-info">
+                <span id="welcomeText">Welcome, User</span>
+                <span id="roleBadge" class="role-badge">Doctor</span>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Patient Management -->
+            <div class="card" id="patientManagement">
+                <div class="card-title">
+                    <div class="card-icon" style="background: #2196F3;">👤</div>
+                    Patient Management
+                </div>
+                <div class="input-group">
+                    <label>Patient Name</label>
+                    <input type="text" id="patientName" placeholder="Enter patient name">
+                </div>
+                <div class="input-group">
+                    <label>Patient ID</label>
+                    <input type="text" id="patientId" placeholder="Enter patient ID">
+                </div>
+                <div class="input-group">
+                    <label>Age</label>
+                    <input type="number" id="patientAge" placeholder="Enter age">
+                </div>
+                <div class="input-group">
+                    <label>Gender</label>
+                    <select id="patientGender">
+                        <option value="">Select Gender</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <button class="btn" onclick="addPatient()">Add Patient</button>
+                <button class="btn btn-secondary" onclick="updatePatientList()">Update Patient List</button>
+            </div>
+
+
+
+            <!-- Medical Imaging -->
+            <div class="card">
+                <div class="card-title">
+                    <div class="card-icon" style="background: #9C27B0;">📊</div>
+                    Medical Imaging Analysis
+                </div>
+                <input type="text" id="patientId" placeholder="Patient ID">
+                    <input type="text" id="patientName" placeholder="Patient Name">
+                    <input type="number" id="patientAge" placeholder="Age">
+                    <input type="text" id="patientGender" placeholder="Gender">
+                <button class="btn" onclick="viewPreviousScans()">View Previous Scans</button>
+                <div id="scansModal" class="modal">
+                  <div class="modal-content">
+                    <h3 id="scansModalTitle"></h3>
+                    <div id="scansContainer" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
+                    <button onclick="closeScansModal()">Close</button>
+                </div>
+              </div>
+                <div class="file-upload" onclick="document.getElementById('imageUpload').click()" ondrop="handleDrop(event)" ondragover="handleDragOver(event)">
+                    <p>📷 Click to upload or drag & drop</p>
+                    <p style="color: #666; font-size: 0.9em;">CT Scans, X-rays, MRI images</p>
+                    
+                    <br><br>
+                    <input type="file" id="imageUpload" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
+
+                </div>
+                <div id="imagePreview"></div>
+                <button class="btn btn-secondary" onclick="analyzeImage()" disabled id="analyzeBtn">Analyze Image</button>
+                <div id="imageAnalysisResult"></div>
+            </div>
+
+
+            
+
+
+            <!-- Professional Notes -->
+            <div class="card" id="professionalNotes">
+                <div class="card-title">
+                    <div class="card-icon" style="background: #FF9800;">📝</div>
+                    Professional Notes
+                </div>
+                <div class="input-group">
+                    <label>Patient</label>
+                    <select id="notePatient">
+                        <option value="">Select Patient</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Diagnosis</label>
+                    <textarea id="diagnosis" rows="3" placeholder="Enter diagnosis"></textarea>
+                </div>
+                <div class="input-group">
+                    <label>Treatment Plan</label>
+                    <textarea id="treatmentPlan" rows="3" placeholder="Enter treatment plan"></textarea>
+                </div>
+                <div class="input-group">
+                    <label>Recommendations</label>
+                    <textarea id="recommendations" rows="3" placeholder="Enter recommendations"></textarea>
+                </div>
+                <button class="btn" onclick="saveNotes()">Save Notes</button>
+            </div>
+
+            <!-- Patient Dashboard (for patients) -->
+            <div class="card hidden" id="patientDashboard">
+                <div class="card-title">
+                    <div class="card-icon" style="background: #4CAF50;">📋</div>
+                    My Health Dashboard
+                </div>
+                <div class="result-item">
+                    <h4>Recent Test Results</h4>
+                    <p>Blood Pressure: 120/80 mmHg ✅</p>
+                    <p>Blood Sugar: 95 mg/dL ✅</p>
+                    <p>Last Updated: <span id="lastUpdate"></span></p>
+                </div>
+                <button class="btn btn-secondary" onclick="reviewResults()">Review Patient Results</button>
+            </div>
+        </div>
+
+        <!-- Results Display Area -->
+        <div class="card results-card hidden" id="resultsArea">
+            <div class="card-title">
+                <div class="card-icon" style="background: #607D8B;">📈</div>
+                Analysis Results & Reports
+            </div>
+            <div id="resultsContent"></div>
+        </div>
+
+        <!-- Patient List -->
+        <div class="card results-card hidden" id="patientListArea">
+            <div class="card-title">
+                <div class="card-icon" style="background: #795548;">👥</div>
+                Patient Database
+            </div>
+            <div class="patient-list" id="patientList"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null;
+        let currentRole = null;
+        let patients = JSON.parse(localStorage.getItem('patients')) || [];
+        let uploadedImage = null;
+        let uploadedCT = null;
+
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const role = document.getElementById('role').value;
+
+            if (username && password) {
+                currentUser = username;
+                currentRole = role;
+                
+                document.getElementById('loginForm').classList.add('hidden');
+                document.getElementById('mainDashboard').classList.remove('hidden');
+                document.getElementById('welcomeText').textContent = `Welcome, ${username}`;
+                document.getElementById('roleBadge').textContent = role.charAt(0).toUpperCase() + role.slice(1);
+                
+                // Show role-specific components
+                if (role === 'patient') {
+                    document.getElementById('patientManagement').style.display = 'none';
+                    document.getElementById('professionalNotes').style.display = 'none';
+                    document.getElementById('patientDashboard').classList.remove('hidden');
+                } else if (role === 'doctor') {
+                    document.getElementById('patientDashboard').classList.add('hidden');
+                    document.getElementById('patientManagement').style.display = 'block';
+                    document.getElementById('professionalNotes').style.display = 'block';
+                } else {
+                    document.getElementById('patientDashboard').classList.add('hidden');
+                }
+
+                // Set current time for patient dashboard
+                document.getElementById('lastUpdate').textContent = new Date().toLocaleDateString();
+            } else {
+                alert('Please enter username and password');
+            }
+        }
+
+        function logout() {
+            document.getElementById('loginForm').classList.remove('hidden');
+            document.getElementById('mainDashboard').classList.add('hidden');
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            currentUser = null;
+            currentRole = null;
+        }
+
+        async function addPatient() {
+            const name = document.getElementById('patientName').value;
+            const id = document.getElementById('patientId').value;
+            const age = document.getElementById('patientAge').value;
+            const gender = document.getElementById('patientGender').value;
+
+            if (name && id && age && gender) {
+                const patient = {
+                    id: id,
+                    name: name,
+                    age: age,
+                    gender: gender,
+                    dateAdded: new Date().toLocaleDateString()
+                };
+
+                const res = await fetch("http://localhost:5000/patients", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(patient)
+        });
+                 const data = await res.json();
+        alert("Patient added successfully!");
+ 
+        // Update dropdown
+     
+                // Clear form
+                document.getElementById('patientName').value = '';
+                document.getElementById('patientId').value = '';
+                document.getElementById('patientAge').value = '';
+                document.getElementById('patientGender').value = '';
+
+                alert('Patient added successfully!');
+                updatePatientDropdown();
+            } else {
+                alert('Please fill in all patient information');
+            }
+        }
+        async function signup() {
+            const username = document.getElementById("newUsername").value.trim();
+            const password = document.getElementById("newPassword").value.trim();
+            const role = document.getElementById("newRole").value;
+
+            if (!username || !password) {
+                alert("Please fill all fields");
+                return;
+            }
+
+            try {
+                const response = await fetch("http://localhost:5000/signup", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username, password, role })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    alert("Account created successfully! Please login.");
+                    showLogin(); // switch back to login form
+                } else {
+                    alert(data.error || "Signup failed");
+                }
+            } catch (error) {
+                console.error("Signup error:", error);
+                alert("Error connecting to server");
+            }
+        }
+        async function viewPreviousScans() {
+          const patientId = document.getElementById('patientId').value.trim();
+          const patientName = document.getElementById('patientName').value.trim();
+
+          if (!patientId) {
+            alert('Please enter patient ID');
+            return;
+            }
+
+           try {
+              const res = await fetch(`http://localhost:5000/scans/${patientId}`);
+              const scans = await res.json();
+
+              const container = document.getElementById('scansContainer');
+              container.innerHTML = '';
+
+              if (scans.length === 0) {
+                 container.innerHTML = '<p>No previous scans found for this patient.</p>';
+              } else {
+              scans.forEach(scan => {
+                const img = document.createElement('img');
+                img.src = scan.imageUrl;   // URL stored in DB (Cloudinary)
+                img.alt = 'CT Scan';
+                img.style.maxHeight = '150px';
+                img.style.borderRadius = '8px';
+                container.appendChild(img);
+            });
+        }
+
+        document.getElementById('scansModalTitle').innerText = `Previous Scans of ${patientName || patientId}`;
+        document.getElementById('scansModal').style.display = 'flex';
+
+     } catch (err) {
+        console.error(err);
+    alert('Error fetching scans');
+  }
+}
+
+function closeScansModal() {
+  document.getElementById('scansModal').style.display = 'none';
+}
+        
+        async function login() {
+            const username = document.getElementById("username").value.trim();
+            const password = document.getElementById("password").value.trim();
+            const role = document.getElementById("role").value;
+
+            if (!username || !password) {
+                alert("Please enter username and password");
+                return;
+            }
+
+            try {
+                const response = await fetch("http://localhost:5000/login", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username, password, role })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    // ✅ Successful login
+                    document.getElementById("loginForm").classList.add("hidden");
+                    document.getElementById("mainDashboard").classList.remove("hidden");
+                    document.getElementById("welcomeText").textContent = `Welcome, ${username}`;
+                    document.getElementById("roleBadge").textContent = role.charAt(0).toUpperCase() + role.slice(1);
+
+                    // Role-based dashboard visibility
+                    if (role === "patient") {
+                        document.getElementById("patientManagement").style.display = "none";
+                        document.getElementById("professionalNotes").style.display = "none";
+                        document.getElementById("patientDashboard").classList.remove("hidden");
+                    } else {
+                        document.getElementById("patientDashboard").classList.add("hidden");
+                        document.getElementById("patientManagement").style.display = "block";
+                        document.getElementById("professionalNotes").style.display = "block";
+                    }
+                } else {
+                    alert(data.error || "Invalid login credentials");
+                }
+            } catch (error) {
+                console.error("Login error:", error);
+                alert("Error connecting to server");
+            }
+        }
+
+        async function updatePatientList() {
+            const listArea = document.getElementById('patientListArea');
+            const patientList = document.getElementById('patientList');
+            
+            listArea.classList.remove('hidden');
+            patientList.innerHTML = '';
+
+            const res = await fetch("http://localhost:5000/patients");
+            const patients = await res.json();
+
+            if (patients.length === 0) {
+                patientList.innerHTML = '<p style="padding: 20px; text-align: center; color: #666;">No patients found</p>';
+                return;
+            }
+
+            patients.forEach(patient => {
+                const patientItem = document.createElement('div');
+                patientItem.className = 'patient-item';
+                patientItem.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <strong>${patient.name}</strong> (ID: ${patient.id})
+                            <br>
+                            <small style="color: #666;">Age: ${patient.age} | Gender: ${patient.gender} | Added: ${patient.dateAdded}</small>
+                        </div>
+                        <button class="btn btn-danger" style="width: auto; margin: 0; padding: 5px 15px;" onclick="removePatient('${patient.id}')">Remove</button>
+                    </div>
+                `;
+                patientList.appendChild(patientItem);
+            });
+        }
+
+        function removePatient(patientId) {
+            if (confirm('Are you sure you want to remove this patient?')) {
+                patients = patients.filter(p => p.id !== patientId);
+                localStorage.setItem('patients', JSON.stringify(patients));
+                updatePatientList();
+                updatePatientDropdown();
+            }
+        }
+
+        function updatePatientDropdown() {
+            const dropdown = document.getElementById('notePatient');
+            dropdown.innerHTML = '<option value="">Select Patient</option>';
+            
+            patients.forEach(patient => {
+                const option = document.createElement('option');
+                option.value = patient.id;
+                option.textContent = `${patient.name} (${patient.id})`;
+                dropdown.appendChild(option);
+            });
+        }
+
+        function predictCKD() {
+            const bp = parseFloat(document.getElementById('bloodPressure').value);
+            const glucose = parseFloat(document.getElementById('bloodGlucose').value);
+            const creatinine = parseFloat(document.getElementById('serumCreatinine').value);
+            const urea = parseFloat(document.getElementById('bloodUrea').value);
+
+            if (!bp || !glucose || !creatinine || !urea) {
+                alert('Please fill in all CKD parameters');
+                return;
+            }
+
+            // Simulate AI prediction logic
+            let riskScore = 0;
+            let riskFactors = [];
+
+            if (bp > 140) { riskScore += 25; riskFactors.push('High blood pressure'); }
+            if (glucose > 126) { riskScore += 20; riskFactors.push('High blood glucose'); }
+            if (creatinine > 1.3) { riskScore += 30; riskFactors.push('Elevated serum creatinine'); }
+            if (urea > 20) { riskScore += 25; riskFactors.push('High blood urea nitrogen'); }
+
+            let riskLevel, riskClass, recommendation;
+            if (riskScore >= 60) {
+                riskLevel = 'High Risk';
+                riskClass = 'risk-high';
+                recommendation = 'Immediate consultation with nephrologist recommended';
+            } else if (riskScore >= 30) {
+                riskLevel = 'Moderate Risk';
+                riskClass = 'risk-medium';
+                recommendation = 'Regular monitoring and lifestyle changes recommended';
+            } else {
+                riskLevel = 'Low Risk';
+                riskClass = 'risk-low';
+                recommendation = 'Continue regular health maintenance';
+            }
+
+            const resultDiv = document.getElementById('ckdResult');
+            resultDiv.innerHTML = `
+                <div class="prediction-result ${riskClass}">
+                    <h4>CKD Risk Assessment</h4>
+                    <p><strong>Risk Level:</strong> ${riskLevel}</p>
+                    <p><strong>Risk Score:</strong> ${riskScore}%</p>
+                    <p><strong>Recommendation:</strong> ${recommendation}</p>
+                    ${riskFactors.length > 0 ? `<p><strong>Risk Factors:</strong> ${riskFactors.join(', ')}</p>` : ''}
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${riskScore}%"></div>
+                    </div>
+                </div>
+            `;
+        }
+         async function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+           const formData = new FormData();
+           formData.append("image", file);
+
+           try {
+               const res = await fetch("http://localhost:5000/upload", {
+                    method: "POST",
+                    body: formData
+        });
+
+        const data = await res.json();
+        if (data.success) {
+            uploadedImage = data.imageUrl; // store Cloudinary URL
+
+            document.getElementById('imagePreview').innerHTML = `
+                <img src="${data.imageUrl}" alt="Uploaded Image" class="image-preview" style="max-height: 200px;">
+                <p style="margin-top: 10px; color: #666;">Uploaded to Cloudinary</p>
+            `;
+            document.getElementById('analyzeBtn').disabled = false;
+        } else {
+            alert("Upload failed");
+        }
+    } catch (err) {
+        console.error("Upload error:", err);
+        alert("Error uploading image");
+    }
+}
+
+        
+
+    async function handleCTUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append("image", file);
+
+       try {
+            const res = await fetch("http://localhost:5000/upload", {
+                method: "POST",
+                body: formData
+        });
+
+        const data = await res.json();
+        if (data.success) {
+            uploadedCT = data.imageUrl; // store Cloudinary URL
+
+            document.getElementById('ctPreview').innerHTML = `
+                <img src="${data.imageUrl}" alt="CT Scan" class="image-preview" style="max-height: 200px;">
+                <p style="margin-top: 10px; color: #666;">CT Scan uploaded to Cloudinary</p>
+            `;
+            document.getElementById('detectBtn').disabled = false;
+        } else {
+            alert("Upload failed");
+        }
+    } catch (err) {
+        console.error("Upload error:", err);
+        alert("Error uploading CT scan");
+    }
+}
+
+
+        function handleDrop(event) {
+            event.preventDefault();
+            const files = event.dataTransfer.files;
+            if (files.length > 0) {
+                document.getElementById('imageUpload').files = files;
+                handleImageUpload({ target: { files: files } });
+            }
+        }
+
+        function handleDragOver(event) {
+            event.preventDefault();
+        }
+        function showSignup() {
+                document.getElementById('loginForm').classList.add('hidden');
+                document.getElementById('signupForm').classList.remove('hidden');
+        }
+
+
+        function showLogin() {
+                document.getElementById('signupForm').classList.add('hidden');
+                document.getElementById('loginForm').classList.remove('hidden');
+        }
+        function analyzeImage() {
+            if (!uploadedImage) {
+                alert('Please upload an image first');
+                return;
+            }
+
+            // Simulate image analysis
+            const analysisTypes = ['Normal', 'Pneumonia detected', 'Fracture identified', 'Abnormal mass detected', 'Inflammation present'];
+            const confidence = Math.floor(Math.random() * 30) + 70; // 70-100%
+            const result = analysisTypes[Math.floor(Math.random() * analysisTypes.length)];
+
+            document.getElementById('imageAnalysisResult').innerHTML = `
+                <div class="result-item ${result === 'Normal' ? 'risk-low' : 'risk-medium'}">
+                    <h4>Image Analysis Results</h4>
+                    <p><strong>Classification:</strong> ${result}</p>
+                    <p><strong>Confidence:</strong> ${confidence}%</p>
+                    <p><strong>Recommendation:</strong> ${result === 'Normal' ? 'No immediate action required' : 'Further examination recommended'}</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${confidence}%"></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function detectAnomalies() {
+            if (!uploadedCT) {
+                alert('Please upload a CT scan first');
+                return;
+            }
+
+            // Simulate anomaly detection
+            const detections = [
+                { type: 'Cyst', location: 'Left kidney', size: '2.3cm', severity: 'Benign' },
+                { type: 'Stone', location: 'Right kidney', size: '0.8cm', severity: 'Moderate' },
+                { type: 'Mass', location: 'Liver', size: '1.5cm', severity: 'Requires biopsy' }
+            ];
+
+            const randomDetection = detections[Math.floor(Math.random() * detections.length)];
+            const confidence = Math.floor(Math.random() * 20) + 80; // 80-100%
+
+            document.getElementById('detectionResult').innerHTML = `
+                <div class="result-item ${randomDetection.severity === 'Benign' ? 'risk-low' : 'risk-medium'}">
+                    <h4>Anomaly Detection Results</h4>
+                    <p><strong>Detection:</strong> ${randomDetection.type}</p>
+                    <p><strong>Location:</strong> ${randomDetection.location}</p>
+                    <p><strong>Size:</strong> ${randomDetection.size}</p>
+                    <p><strong>Assessment:</strong> ${randomDetection.severity}</p>
+                    <p><strong>Confidence:</strong> ${confidence}%</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${confidence}%"></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function saveNotes() {
+            const patientId = document.getElementById('notePatient').value;
+            const diagnosis = document.getElementById('diagnosis').value;
+            const treatment = document.getElementById('treatmentPlan').value;
+            const recommendations = document.getElementById('recommendations').value;
+
+            if (!patientId || !diagnosis) {
+                alert('Please select a patient and enter diagnosis');
+                return;
+            }
+
+            const notes = {
+                patientId: patientId,
+                diagnosis: diagnosis,
+                treatment: treatment,
+                recommendations: recommendations,
+                date: new Date().toLocaleDateString(),
+                doctor: currentUser
+            };
+            const res = await fetch("http://localhost:5000/notes", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(note)
+         });
+    const data = await res.json();
+           
+            alert('Notes saved successfully!');
+            
+            // Clear form
+            document.getElementById('notePatient').value = '';
+            document.getElementById('diagnosis').value = '';
+            document.getElementById('treatmentPlan').value = '';
+            document.getElementById('recommendations').value = '';
+        }
+
+        function reviewResults() {
+            const resultsArea = document.getElementById('resultsArea');
+            const resultsContent = document.getElementById('resultsContent');
+            
+            resultsArea.classList.remove('hidden');
+            resultsContent.innerHTML = `
+                <div class="result-item risk-low">
+                    <h4>Recent Blood Work</h4>
+                    <p>All values within normal range</p>
+                    <p>Date: ${new Date().toLocaleDateString()}</p>
+                </div>
+                <div class="result-item risk-medium">
+                    <h4>CKD Risk Assessment</h4>
+                    <p>Moderate risk detected - follow up recommended</p>
+                    <p>Risk Score: 35%</p>
+                </div>
+            `;
+        }
+
+        // Initialize the app
+        window.onload = function() {
+            updatePatientDropdown();
+        };
+    </script>
+</body>
+</html>
