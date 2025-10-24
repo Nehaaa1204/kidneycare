@@ -1,7 +1,14 @@
-
+const express = require('express');
+const { MongoClient } = require('mongodb');
+const cors = require('cors');
+const bodyParser = require('body-parser');
+const bcrypt = require('bcrypt');
 const multer = require('multer');
 const { v2: cloudinary } = require('cloudinary');
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
+//const tf = require('@tensorflow/tfjs'); // ML model
+//const fs = require('fs');
+const path = require('path');
 
 cloudinary.config({
   cloud_name: 'dsy2znu4i',
@@ -20,12 +27,6 @@ const storage = new CloudinaryStorage({
 
 const upload = multer({ storage });
 
-
-const express = require('express');
-const { MongoClient } = require('mongodb');
-const cors = require('cors');
-const bodyParser = require('body-parser');
-const bcrypt = require('bcrypt'); // for password hashing
 
 const app = express();
 const port = 5000;
@@ -195,7 +196,52 @@ app.post('/upload/:patientIdImaging', upload.single('image'),async(req,res) => {
   }
 });
 
+
+
+const axios = require('axios');
+const fetch = require('node-fetch');
+
+
 // Get notes for a patient
+app.post("/predict", upload.single("image"), async (req, res) => {
+  try {
+    console.log("req.file:", req.file);
+    console.log("req.body:", req.body);
+
+    // 🔹 Case 1: frontend sent image URL directly
+    const imageUrl = req.body.image || req.body.imageUrl;
+
+    // 🔹 Case 2: frontend uploaded file (multipart form data)
+    const uploadedUrl = req.file?.path || req.file?.url || req.file?.secure_url;
+
+    const finalUrl = uploadedUrl || imageUrl;
+    console.log("Final URL sent to Flask:", finalUrl);
+
+    if (!finalUrl) {
+      return res.status(400).json({ error: "No image URL found for prediction" });
+    }
+
+    // 🔹 Send the image URL to Flask
+    const flaskResponse = await fetch("http://127.0.0.1:8000/predict", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ imageUrl: finalUrl }),
+    });
+
+    const result = await flaskResponse.json();
+
+    if (!flaskResponse.ok) {
+      return res.status(flaskResponse.status).json(result);
+    }
+
+    res.json(result);
+  } catch (err) {
+    console.error("Error in /predict:", err);
+    res.status(500).json({ error: "Failed to analyze image" });
+  }
+});
+
+
 app.get('/notes/:patientId', ensureDbConnected, async (req, res) => {
   try {
     const patientId = req.params.patientId;

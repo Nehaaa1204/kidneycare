@@ -529,7 +529,7 @@
         if (loggedInDoctor){
             currentUser = JSON.parse(loggedInDoctor).email || JSON.parse(loggedInDoctor).name;
         }else{
-            console.warn("the docotrs not there")
+            console.warn("the doctors not there")
         }
         
 
@@ -938,50 +938,43 @@ function updatePatientDropdown() {
                 document.getElementById('signupForm').classList.add('hidden');
                 document.getElementById('loginForm').classList.remove('hidden');
         }
-        async function analyzeImage() {
-         if (!uploadedImage) {
+        document.getElementById('imageInput').addEventListener('change', (e) => {
+            uploadedImage=e.target.files[0];
+        });
+
+    async function analyzeImage() {
+        if (!uploadedImage) {
             alert('Please upload an image first');
             return;
         }
 
-  try {
-    const response = await fetch("http://127.0.0.1:8000/predict", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ image_url: uploadedImage }) // adjust if backend expects 'file'
-    });
+        try {
+            const formData = new FormData();
+            formData.append("image", uploadedImage);
 
-    if (!response.ok) {
-      throw new Error("Failed to analyze image");
+            const response = await fetch("http://127.0.0.1:5000/predict", {
+                method: "POST",
+                body: formData
+            });
+
+            if (!response.ok) throw new Error("Failed to analyze image: " + response.status);
+
+            const result = await response.json();
+            console.log(result);
+
+            const classification = result.prediction || "Unknown";
+            const confidence = result.confidence || 90;
+
+            document.getElementById('imageAnalysisResult').innerHTML = `
+                <p><strong>Classification:</strong> ${classification}</p>
+                <p><strong>Confidence:</strong> ${confidence}%</p>
+            `;
+        } catch (error) {
+            console.error("Image analysis error:", error);
+            document.getElementById('imageAnalysisResult').innerHTML =
+                `<p style="color:red;">Error analyzing image. Please try again.</p>`;
+        }
     }
-
-    const result = await response.json(); // ✅ define it here
-
-    // ✅ use returned data safely
-    const classification = result.prediction || result.result || "Unknown";
-    const confidence = result.confidence || Math.floor(Math.random() * 20) + 80; // fallback random confidence
-
-    document.getElementById('imageAnalysisResult').innerHTML = `
-      <div class="result-item ${classification === 'Normal' ? 'risk-low' : 'risk-medium'}">
-        <h4>Image Analysis Results</h4>
-        <p><strong>Classification:</strong> ${classification}</p>
-        <p><strong>Confidence:</strong> ${confidence}%</p>
-        <p><strong>Recommendation:</strong> ${
-          classification === 'Normal'
-            ? 'No immediate action required'
-            : 'Further examination recommended'
-        }</p>
-        <div class="progress-bar">
-          <div class="progress-fill" style="width: ${confidence}%"></div>
-        </div>
-      </div>
-    `;
-  } catch (error) {
-    console.error("Image analysis error:", error);
-    document.getElementById('imageAnalysisResult').innerHTML =
-      `<p style="color:red;">Error analyzing image. Please try again.</p>`;
-  }
-}
 
         function detectAnomalies() {
             if (!uploadedCT) {
